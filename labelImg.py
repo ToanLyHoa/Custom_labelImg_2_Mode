@@ -145,7 +145,7 @@ class MainWindow(QMainWindow, WindowMixin):
         # phân biệt nhân viên và khách hàng
         self.use_staff_security_checkbox = QCheckBox(get_str('staffSecurity'))
         self.use_staff_security_checkbox.setChecked(True)
-        self.staff_security_items = ['Khách hàng', 'Bảo vệ, Nhân viên sơ mi áo xanh', 'Nhân viên áo dài', 'Nhân viên áo polo đỏ']
+        self.staff_security_items = ['Khách hàng', 'Bảo vệ', 'Nhân viên áo dài', 'Nhân viên áo polo đỏ', 'Nhân viên sơ mi áo xanh']
         
         self.default_staff_security = self.staff_security_items[0]
         self.prev_staff_security = None
