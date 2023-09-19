@@ -1153,6 +1153,7 @@ class MainWindow(QMainWindow, WindowMixin):
         self.staff_security_index_current = index
         self.set_dirty()
         self.update_combo_box()
+        self.button_state()
     def gender_combo_selection_changed(self, index):
         # check xem item hiện tại có phải là ảnh hay không
         item = self.current_item()
@@ -1166,6 +1167,8 @@ class MainWindow(QMainWindow, WindowMixin):
         self.gender_index_current = index
         self.set_dirty()
         self.update_combo_box()
+        self.button_state()
+        
     
     def age_combo_selection_changed(self, index):
         # check xem item hiện tại có phải là ảnh hay không
@@ -1180,6 +1183,7 @@ class MainWindow(QMainWindow, WindowMixin):
         self.age_index_current = index
         self.set_dirty()
         self.update_combo_box()
+        self.button_state()
 
     
     def QA_combo_selection_changed(self, index):
@@ -1195,6 +1199,7 @@ class MainWindow(QMainWindow, WindowMixin):
         self.QA_index_current = index
         self.set_dirty()
         self.update_combo_box()
+        self.button_state()
 
 
     def default_label_combo_selection_changed(self, index):
