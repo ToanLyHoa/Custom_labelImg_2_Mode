@@ -46,6 +46,7 @@ class Shape(object):
         self.gender = gender
         self.age = age
         self.QA = QA
+        self.isCheck = True
 
         self.points = []
         self.fill = False

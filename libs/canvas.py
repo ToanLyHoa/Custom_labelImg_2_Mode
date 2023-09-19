@@ -224,7 +224,7 @@ class Canvas(QWidget):
         # Update shape/vertex fill and tooltip value accordingly.
         self.setToolTip("Image")
         priority_list = self.shapes + ([self.selected_shape] if self.selected_shape else [])
-        for shape in reversed([s for s in priority_list if self.isVisible(s)]):
+        for shape in reversed([s for s in priority_list if self.isVisible(s) and s.isCheck]):
             # Look for a nearby vertex to highlight. If that fails,
             # check if we happen to be inside a shape.
             index = shape.nearest_vertex(pos, self.epsilon)
@@ -377,7 +377,7 @@ class Canvas(QWidget):
             self.select_shape(shape)
             return self.h_vertex
         for shape in reversed(self.shapes):
-            if self.isVisible(shape) and shape.contains_point(point):
+            if self.isVisible(shape) and shape.contains_point(point) and shape.isCheck:
                 self.select_shape(shape)
                 self.calculate_offsets(shape, point)
                 return self.selected_shape
@@ -606,7 +606,9 @@ class Canvas(QWidget):
         Shape.scale = self.scale
         Shape.label_font_size = self.label_font_size
         for shape in self.shapes:
-            if (shape.selected or not self._hide_background) and self.isVisible(shape):
+            # thêm điều kiện isCheck = True
+            if (shape.selected or not self._hide_background) and self.isVisible(shape) \
+                and shape.isCheck == True:
                 shape.fill = shape.selected or shape == self.h_shape
                 shape.paint(p)
         if self.current:

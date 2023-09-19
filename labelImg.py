@@ -145,6 +145,8 @@ class MainWindow(QMainWindow, WindowMixin):
         # phân biệt nhân viên và khách hàng
         self.use_staff_security_checkbox = QCheckBox(get_str('staffSecurity'))
         self.use_staff_security_checkbox.setChecked(True)
+        self.use_staff_security_checkbox.stateChanged.connect(self.button_state)
+        
         self.staff_security_items = ['Khách hàng', 'Bảo vệ', 'Nhân viên áo dài', 'Nhân viên áo polo đỏ', 'Nhân viên sơ mi áo xanh']
         
         self.default_staff_security = self.staff_security_items[0]
@@ -164,6 +166,8 @@ class MainWindow(QMainWindow, WindowMixin):
         # giới tính
         self.use_gender_checkbox = QCheckBox(get_str('gender'))
         self.use_gender_checkbox.setChecked(True)
+        self.use_gender_checkbox.stateChanged.connect(self.button_state)
+        
         self.gender_items = ['Nam', 'Nữ', 'Không rõ']
         self.default_gender = self.gender_items[0]
         self.prev_gender = None
@@ -178,6 +182,8 @@ class MainWindow(QMainWindow, WindowMixin):
         # tuổi
         self.use_age_checkbox = QCheckBox(get_str('age'))
         self.use_age_checkbox.setChecked(True)
+        self.use_age_checkbox.stateChanged.connect(self.button_state)
+        
         self.age_items = ['0_12', '12_18', '19_30', '31-45', '46-60', 'Không rõ']
         self.default_age = self.age_items[0]
         self.prev_age = None
@@ -194,6 +200,8 @@ class MainWindow(QMainWindow, WindowMixin):
         # chất lượng của ảnh
         self.use_QA_checkbox = QCheckBox(get_str('qa'))
         self.use_QA_checkbox.setChecked(True)
+        self.use_QA_checkbox.stateChanged.connect(self.button_state)
+        
         self.QA_items = ['Nhỏ và mờ', 'Nửa người', 'Đạt yêu cầu']
         self.default_QA = self.QA_items[0]
         self.prev_QA = None
@@ -205,20 +213,42 @@ class MainWindow(QMainWindow, WindowMixin):
         QA_container = QWidget()
         QA_container.setLayout(QA_qhbox_layout)
 
+        
+        self.staff_security_index_current = 0
+        self.gender_index_current = 0
+        self.age_index_current = 0
+        self.QA_index_current = 0
+        
                 # **** Thinkman custom labelImg ****
 
 
 
         # Create a widget for edit and diffc button
-        self.diffc_button = QCheckBox(get_str('useDifficult'))
-        self.diffc_button.setChecked(False)
-        self.diffc_button.stateChanged.connect(self.button_state)
+        self.check_button = QCheckBox(get_str('useCheck'))
+        self.check_button.setChecked(False)
+        self.check_button.stateChanged.connect(self.button_state)
         self.edit_button = QToolButton()
         self.edit_button.setToolButtonStyle(Qt.ToolButtonTextBesideIcon)
+        
+        # chọn thằng attribute để check bbox của box đó
+        # self.use_check_attribute_checkbox = QCheckBox(get_str('check_attribute'))
+        # self.use_check_attribute_checkbox.setChecked(True)
+        # self.check_attribute_items = ['Loại nhân viên', 'Giới tính', 'Độ tuổi', 'Chất lượng ảnh']
+        # self.check_attribute = self.check_attribute_items[0]
+        # self.prev_check_attribute = None
+        # self.check_attribute_combo_box = DefaultLabelComboBox(self,items=self.check_attribute_items, attribute='check_attribute')
+
+        # check_attribute_qhbox_layout = QHBoxLayout()
+        # check_attribute_qhbox_layout.addWidget(self.use_check_attribute_checkbox)
+        # check_attribute_qhbox_layout.addWidget(self.check_attribute_combo_box)
+        # check_attribute_container = QWidget()
+        # check_attribute_container.setLayout(check_attribute_qhbox_layout)
 
         # Add some of widgets to list_layout
         list_layout.addWidget(self.edit_button)
-        list_layout.addWidget(self.diffc_button)
+        list_layout.addWidget(self.check_button)
+        # list_layout.addWidget(check_attribute_container)
+        
         list_layout.addWidget(use_default_label_container)
                 # **** Thinkman custom labelImg ****
         list_layout.addWidget(staff_security_container)
@@ -870,30 +900,68 @@ class MainWindow(QMainWindow, WindowMixin):
 
     # Add chris
     def button_state(self, item=None):
-        """ Function to handle difficult examples
-        Update on each object """
-        if not self.canvas.editing():
-            return
+        
+        # hàm này dùng để lọc bớt các bbox, chỉ show các bbox thỏa điều kiện
+        
+        isCheck = self.check_button.isChecked()
+        
+        # nếu là check thì gán biến check bằng true cho các bbox thỏa điều kiện
+        if isCheck:
+            
+            # gán False với các biến không thỏa các giá trị đang chọn
+            string_check = ""
+            for checkbox, current_index in  zip(\
+                [self.use_staff_security_checkbox, self.use_gender_checkbox, self.use_age_checkbox, self.use_QA_checkbox],
+                [self.staff_security_index_current, self.gender_index_current, self.age_index_current, self.QA_index_current]):
+                if checkbox.isChecked():
+                    string_check += f"{current_index}"
+            
+            for shape in self.canvas.shapes:
+                shape_string_check = ""
+                for checkbox, value, list_items in  zip(\
+                [self.use_staff_security_checkbox, self.use_gender_checkbox, self.use_age_checkbox, self.use_QA_checkbox],
+                [shape.staff_security, shape.gender, shape.age, shape.QA],
+                [self.staff_security_items, self.gender_items, self.age_items, self.QA_items]):
+                    if checkbox.isChecked():
+                        shape_string_check += f"{list_items.index(value)}"
+                
+                if shape_string_check != string_check:
+                    shape.isCheck = False
+                else:
+                    shape.isCheck = True
+            
+        # nếu không thì ta gán hết cho các bbox isCheck = True hết
+        else:
+            for shape in self.canvas.shapes:
+                shape.isCheck = True
+        
+        self.canvas.update()
+        self.set_dirty()
+        
+        # """ Function to handle difficult examples
+        # Update on each object """
+        # if not self.canvas.editing():
+        #     return
 
-        item = self.current_item()
-        if not item:  # If not selected Item, take the first one
-            item = self.label_list.item(self.label_list.count() - 1)
+        # item = self.current_item()
+        # if not item:  # If not selected Item, take the first one
+        #     item = self.label_list.item(self.label_list.count() - 1)
 
-        difficult = self.diffc_button.isChecked()
+        # difficult = self.check_button.isChecked()
 
-        try:
-            shape = self.items_to_shapes[item]
-        except:
-            pass
-        # Checked and Update
-        try:
-            if difficult != shape.difficult:
-                shape.difficult = difficult
-                self.set_dirty()
-            else:  # User probably changed item visibility
-                self.canvas.set_shape_visible(shape, item.checkState() == Qt.Checked)
-        except:
-            pass
+        # try:
+        #     shape = self.items_to_shapes[item]
+        # except:
+        #     pass
+        # # Checked and Update
+        # try:
+        #     if difficult != shape.difficult:
+        #         shape.difficult = difficult
+        #         self.set_dirty()
+        #     else:  # User probably changed item visibility
+        # self.canvas.set_shape_visible(shape, item.checkState() == Qt.Checked)
+        # except:
+        #     pass
 
     # React to canvas signals.
     def shape_selection_changed(self, selected=False):
@@ -909,6 +977,12 @@ class MainWindow(QMainWindow, WindowMixin):
                 self.gender_combo_box.set_selected_text(shape.gender)
                 self.age_combo_box.set_selected_text(shape.age)
                 self.QA_combo_box.set_selected_text(shape.QA)
+                
+                # cập nhật index luôn
+                self.staff_security_index_current = self.staff_security_items.index(shape.staff_security)
+                self.gender_index_current = self.gender_items.index(shape.gender)
+                self.age_index_current = self.age_items.index(shape.age)
+                self.QA_index_current = self.QA_items.index(shape.QA)
 
             else:
                 self.label_list.clearSelection()
@@ -1076,6 +1150,7 @@ class MainWindow(QMainWindow, WindowMixin):
             self.staff_security_combo_box.set_selected_text(shape.staff_security)
                 
 
+        self.staff_security_index_current = index
         self.set_dirty()
         self.update_combo_box()
     def gender_combo_selection_changed(self, index):
@@ -1087,7 +1162,8 @@ class MainWindow(QMainWindow, WindowMixin):
             self.canvas.select_shape(shape)
             shape.gender = self.gender_items[index]
             self.gender_combo_box.set_selected_text(shape.gender)
-                
+        
+        self.gender_index_current = index
         self.set_dirty()
         self.update_combo_box()
     
@@ -1100,6 +1176,8 @@ class MainWindow(QMainWindow, WindowMixin):
             self.canvas.select_shape(shape)
             shape.age = self.age_items[index]
             self.age_combo_box.set_selected_text(shape.age)
+            
+        self.age_index_current = index
         self.set_dirty()
         self.update_combo_box()
 
@@ -1114,6 +1192,7 @@ class MainWindow(QMainWindow, WindowMixin):
             shape.QA = self.QA_items[index]
             self.QA_combo_box.set_selected_text(shape.QA)
 
+        self.QA_index_current = index
         self.set_dirty()
         self.update_combo_box()
 
@@ -1129,7 +1208,7 @@ class MainWindow(QMainWindow, WindowMixin):
             self.canvas.select_shape(self.items_to_shapes[item])
             shape = self.items_to_shapes[item]
             # Add Chris
-            self.diffc_button.setChecked(shape.difficult)
+            # self.check_button.setChecked(shape.difficult)
 
     def label_item_changed(self, item):
         shape = self.items_to_shapes[item]
@@ -1188,7 +1267,7 @@ class MainWindow(QMainWindow, WindowMixin):
 
 
         # Add Chris
-        self.diffc_button.setChecked(False)
+        # self.check_button.setChecked(False)
         if text is not None:
             self.prev_label_text = text
             # generate_color = generate_color_by_text(text)
