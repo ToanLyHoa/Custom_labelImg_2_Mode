@@ -1675,6 +1675,8 @@ class MainWindow(QMainWindow, WindowMixin):
         self.default_save_dir = target_dir_path
         if self.file_path:
             self.show_bounding_box_from_annotation_file(file_path=self.file_path)
+            
+        self.button_state()
 
     def import_dir_images(self, dir_path):
         if not self.may_continue() or not dir_path:
@@ -1733,6 +1735,8 @@ class MainWindow(QMainWindow, WindowMixin):
             filename = self.m_img_list[self.cur_img_idx]
             if filename:
                 self.load_file(filename)
+                
+        self.button_state()
 
     def open_next_image(self, _value=False):
         # Proceeding next image without dialog if having any label
@@ -1764,6 +1768,8 @@ class MainWindow(QMainWindow, WindowMixin):
 
         if filename:
             self.load_file(filename)
+            
+        self.button_state()
 
     def open_file(self, _value=False):
         if not self.may_continue():
