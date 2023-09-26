@@ -1087,7 +1087,7 @@ class MainWindow(QMainWindow, WindowMixin):
 
         # thinkman edit here
         # chỗ này ta tạm thời set cứng lưu theo ROTATED_YOLO format
-        self.label_file_format = LabelFileFormat.ROTATED_YOLO
+        # self.label_file_format = LabelFileFormat.ROTATED_YOLO
 
         shapes = [format_shape(shape) for shape in self.canvas.shapes]
         # Can add different annotation formats here
