@@ -667,7 +667,7 @@ class MainWindow(QMainWindow, WindowMixin):
         self.canvas.canDrawRotatedRect = False
 
         # set cứng save_format
-        save_format = FORMAT_ROTATED_YOLO
+        # save_format = FORMAT_ROTATED_YOLO
 
         if save_format == FORMAT_PASCALVOC:
             self.actions.save_format.setText(FORMAT_PASCALVOC)
@@ -1483,6 +1483,7 @@ class MainWindow(QMainWindow, WindowMixin):
         
         # ta tạm thời gán cứng lưu label theo Yolo format
         self.label_file_format = LabelFileFormat.ROTATED_YOLO
+        self.check_txt_label_type(file_path.replace('png', 'txt').replace('jpg', 'txt'))
 
         if  file_path is not None:
             if self.default_save_dir is not None:
@@ -1972,13 +1973,14 @@ class MainWindow(QMainWindow, WindowMixin):
         if os.path.isfile(txt_path) is False:
             return
 
-        self.set_format(FORMAT_ROTATED_YOLO)
 
         # thinkman edit here
         info_items_list = [self.staff_security_items, self.gender_items, self.age_items, self.QA_items]
 
-        t_yolo_parse_reader = RotatedYOLOReader(txt_path, info_items_list = info_items_list)
-        # t_yolo_parse_reader = RotatedYOLOReader(txt_path)
+        if self.label_file_format == LabelFileFormat.ROTATED_YOLO:
+            t_yolo_parse_reader = RotatedYOLOReader(txt_path, info_items_list = info_items_list)
+        elif self.label_file_format == LabelFileFormat.YOLO:
+            t_yolo_parse_reader = RotatedYOLOReader(txt_path)
         shapes = t_yolo_parse_reader.get_shapes()
         self.load_labels(shapes)
         self.canvas.verified = t_yolo_parse_reader.verified
